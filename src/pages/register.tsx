@@ -3,15 +3,28 @@ import { registerUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    password: "",
+    role: "Viewer",
+    phoneNo: "",
+  });
+
   const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await registerUser(username, password);
-      navigate("/login"); // Redirect to login after registration
+      await registerUser(formData);
+      navigate("/login");
     } catch (err) {
       alert("Error registering user");
     }
@@ -23,19 +36,72 @@ const Register = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          name="firstName"
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={handleChange}
           className="border p-2 w-full mb-2"
+          required
+        />
+        <input
+          type="text"
+          name="lastName"
+          placeholder="Last Name"
+          value={formData.lastName}
+          onChange={handleChange}
+          className="border p-2 w-full mb-2"
+          required
+        />
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          className="border p-2 w-full mb-2"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          className="border p-2 w-full mb-2"
+          required
         />
         <input
           type="password"
+          name="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           className="border p-2 w-full mb-2"
+          required
         />
-        <button type="submit" className="bg-green-500 text-white p-2 w-full">Register</button>
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          className="border p-2 w-full mb-2"
+          required
+        >
+          <option value="Super admin">Super admin</option>
+          <option value="Updater">Updater</option>
+          <option value="Viewer">Viewer</option>
+        </select>
+        <input
+          type="text"
+          name="phoneNo"
+          placeholder="Phone Number"
+          value={formData.phoneNo}
+          onChange={handleChange}
+          className="border p-2 w-full mb-2"
+          required
+        />
+        <button type="submit" className="bg-green-500 text-white p-2 w-full">
+          Register
+        </button>
       </form>
     </div>
   );
