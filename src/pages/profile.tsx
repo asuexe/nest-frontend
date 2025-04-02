@@ -69,13 +69,9 @@ const InfoPanel = ({
       aria-label={`Toggle ${position} panel`}
     >
       {position === "left" ? (
-        <ChevronRight
-          className={`transition-transform ${visible ? "rotate-180" : ""}`}
-        />
+        <ChevronRight className={`transition-transform ${visible ? "rotate-180" : ""}`} />
       ) : (
-        <ChevronLeft
-          className={`transition-transform ${visible ? "rotate-180" : ""}`}
-        />
+        <ChevronLeft className={`transition-transform ${visible ? "rotate-180" : ""}`} />
       )}
     </button>
     <h3 className="text-lg font-bold mb-2">{title}</h3>
@@ -84,15 +80,10 @@ const InfoPanel = ({
 );
 
 const formatKey = (key: string) =>
-  key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (str) => str.toUpperCase())
-    .replace(/Ha\./g, "Hectares");
+  key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedProject, setSelectedProject] = useState<ProjectKey | "">("");
   const [leftBoxVisible, setLeftBoxVisible] = useState<boolean>(false);
   const [rightBoxVisible, setRightBoxVisible] = useState<boolean>(false);
@@ -103,35 +94,22 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        setIsLoading(true);
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found");
 
         const data = await getProfile(token);
         setUser(data.user);
-        setIsAuthorized(true);
-      } catch (err: any) {
-        console.error("Profile fetch error:", err.response?.data || err);
-        setIsAuthorized(false);
+      } catch (err) {
+        console.error("Profile fetch error:", err);
         alert("Unauthorized! Please log in.");
         navigate("/login");
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchProfile();
   }, [navigate]);
 
-  if (!isAuthorized) return null;
-
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      )}
-
       <div className="absolute inset-0">
         <GujaratMap selectedProject={selectedProject} />
       </div>
@@ -150,72 +128,48 @@ const Profile = () => {
             </option>
           ))}
         </select>
-        <div className="font-semibold">
-          {user ? `Welcome, ${user.username}` : "Loading..."}
-        </div>
+        <div className="font-semibold">{user ? `Welcome, ${user.username}` : "Loading..."}</div>
       </div>
 
-      {/* Swap the panels here */}
+      {/* Land Details on the left */}
       <InfoPanel
         position="left"
         visible={leftBoxVisible}
         toggle={() => setLeftBoxVisible(!leftBoxVisible)}
-        title="Land Details 2"
+        title="Land Details"
       >
         {selectedProject && projectData[selectedProject] ? (
-          <>
-            {Object.entries(projectData[selectedProject])
-              .filter(([key]) =>
-                [
-                  "siteName",
-                  "villageName",
-                  "khataNumber",
-                  "surveyNumber",
-                  "landType",
-                  "area",
-                ].includes(key)
-              )
-              .map(([key, value]) => (
-                <p key={key} className="mb-1">
-                  <span className="font-semibold">{formatKey(key)}:</span>{" "}
-                  {value || "--"}
-                </p>
-              ))}
-          </>
+          Object.entries(projectData[selectedProject])
+            .filter(([key]) => ["siteName", "villageName", "khataNumber", "surveyNumber", "landType", "area"].includes(key))
+            .map(([key, value]) => (
+              <p key={key} className="mb-1">
+                <span className="font-semibold">{formatKey(key)}:</span> {value || "--"}
+              </p>
+            ))
         ) : (
           <p>Select a project to view details</p>
         )}
       </InfoPanel>
 
-      <InfoPanel
+      {/* Legal Details on the right */}
+      {/* <InfoPanel
         position="right"
         visible={rightBoxVisible}
         toggle={() => setRightBoxVisible(!rightBoxVisible)}
-        title="Legal Details 1"
+        title="Legal Details"
       >
         {selectedProject && projectData[selectedProject] ? (
-          <>
-            {Object.entries(projectData[selectedProject])
-              .filter(([key]) =>
-                [
-                  "ownershipType",
-                  "legalIssue",
-                  "existingLoan",
-                  "landReferenceCase",
-                  "status",
-                ].includes(key)
-              )
-              .map(([key, value]) => (
-                <p key={key} className="mb-1">
-                  <span className="font-semibold">{formatKey(key)}:</span>{" "}
-                  {value || "--"}
-                </p>
-              ))}
-          </>
+          Object.entries(projectData[selectedProject])
+            .filter(([key]) => ["ownershipType", "legalIssue", "existingLoan", "landReferenceCase", "status"].includes(key))
+            .map(([key, value]) => (
+              <p key={key} className="mb-1">
+                <span className="font-semibold">{formatKey(key)}:</span> {value || "--"}
+              </p>
+            ))
         ) : (
           <p>Select a project to view details</p>
         )}
-      </InfoPanel>
+      </InfoPanel> */}
     </div>
   );
 };
